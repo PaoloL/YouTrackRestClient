@@ -13,6 +13,20 @@ class Issue:
         self.client = client
         self.id = issue_id
     
+    #Implement GET /api/issues/{issueID}/timeTracking/workItems?{fields}&{$top}&{$skip}
+    def get_work_items(self, limit=None):
+        url = f"{self.client.base_url}/api/issues/{self.id}/timeTracking/workItems"
+        params = {
+            'fields': 'id,author(name),date,text,duration(minutes)',
+            '$top': limit,
+        }
+
+        response = requests.get(url, headers=self.client.headers, params=params)
+        response.raise_for_status()
+
+        return response.json()
+
+    #Implement POST /api/issues/{issueID}/timeTracking/workItems/{itemID}?{fields}&{muteUpdateNotifications}
     def add_spent_time(self, duration, date=None, description=None):
         """
         Add spent time to the issue.
