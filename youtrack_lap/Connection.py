@@ -17,11 +17,14 @@ class Connection:
             'Cache-Control': 'no-cache'
         }
     
-    def get_projects(self):
-        """Get list of projects with basic information."""
-        url = f"{self.base_url}/api/projects"
+    #Implement GET /api/admin/projects?{fields}&{$top}&{$skip}
+    def get_projects(self, limit=None, skip=None):
+        url = f"{self.base_url}/api/admin/projects"
+    
         params = {
-            'fields': 'id,name,shortName,createdBy(login,name,id),leader(login,name,id)'
+            'fields': 'id,name,shortName,createdBy(name)',
+            '$top': limit,
+            '$skip': skip
         }
         
         response = requests.get(url, headers=self.headers, params=params)

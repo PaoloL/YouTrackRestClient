@@ -14,11 +14,12 @@ class Issue:
         self.id = issue_id
     
     #Implement GET /api/issues/{issueID}/timeTracking/workItems?{fields}&{$top}&{$skip}
-    def get_work_items(self, limit=None):
+    def get_work_items(self, limit=None, skip=None):
         url = f"{self.client.base_url}/api/issues/{self.id}/timeTracking/workItems"
         params = {
             'fields': 'id,author(name),date,text,duration(minutes)',
             '$top': limit,
+            '$skip': skip
         }
 
         response = requests.get(url, headers=self.client.headers, params=params)
@@ -26,42 +27,30 @@ class Issue:
 
         return response.json()
 
-    #Implement POST /api/issues/{issueID}/timeTracking/workItems/{itemID}?{fields}&{muteUpdateNotifications}
-    def add_spent_time(self, duration, date=None, description=None):
-        """
-        Add spent time to the issue.
+    #Implement POST /api/issues/{issueID}/timeTracking/workItems?{fields}&{muteUpdateNotifications}
+    def add_work_item(self, duration, date=None, description=None):
+        # Format date in epoch time if date is in YYYY/MM/DD string convert in epoch time X
         
-        Args:
-            duration: Time spent in minutes or formatted string (e.g., '1h 30m')
-            date: Date of work (defaults to today), format: YYYY-MM-DD
-            description: Optional comment for the work item
-            
-        Returns:
-            Response data from the API
-        """
-        # Format date if provided, otherwise use today
+        date
         if date is None:
-            date = datetime.datetime.now().strftime("%Y-%m-%d")
-        elif isinstance(date, datetime.datetime):
-            date = date.strftime("%Y-%m-%d")
+            date = datetime.datetime.now().timestamp() * 1000 
+        elif isinstance(date, str):
+            date = datetime.datetime.strptime(date, "%d/%m/%Y").timestamp() * 1000            
             
         # Prepare request data
-        url = f"{self.client.base_url}/api/issues/{self.id}"
+        url = f"{self.client.base_url}/api/issues/{self.id}/timeTracking/workItems"
 
         data = {
             "duration": {
                 "minutes": self._parse_duration(duration)
             },
             "date": date,
-            "description" : description
+            "text" : description
+
         }
         
         # Make the API request
-        response = requests.post(
-            url, 
-            headers=self.client.headers,
-            json=data,
-        )
+        response = requests.post(url, headers=self.client.headers, json=data)
         response.raise_for_status()
         
         return response.json()

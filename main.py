@@ -2,6 +2,7 @@ import os
 from youtrack_lap.Connection import Connection
 from youtrack_lap.Issue import Issue
 from youtrack_lap.Project import Project
+from datetime import datetime
 
 YOUTRACK_URL = "https://r3recube.myjetbrains.com/youtrack/"
 
@@ -19,6 +20,20 @@ token_file = os.path.expanduser("secrets/yt_token.txt")
 YOUTRACK_TOKEN = read_token_from_file(token_file)
 client = Connection(base_url=YOUTRACK_URL, token=YOUTRACK_TOKEN)
 
+# Get Projects
+has_more = True
+items_limit = 10
+skip = 0
+while has_more:
+    projects = client.get_projects(limit=items_limit, skip=skip)
+    if not projects:
+        has_more = False
+    else:
+        for item in projects:
+            print(f"Projectr {item['id']}: {item['name']} {item['shortName']} created by {item['createdBy']}")
+        skip += items_limit
+
+# Get Details from a specific Project
 project = Project(client, 'AI')
 project_details = project.get_details()
 project_issues = project.get_issues(limit=None)
@@ -26,14 +41,22 @@ print(f"Found {len(project_issues)} issues")
 for issue in project_issues:
     print(f"{issue['id']}: {issue['summary']}:  {issue['description']}")
 
+# Get Issue
 issue = Issue(client, 'AI-121')
-issue_work_item = issue.get_work_items(limit=None)
-print(f"Found {len(issue_work_item)} items")
-for item in issue_work_item:
-    #Convert {item['date']} from unepoch time to readable date
-    from datetime import datetime
-    timestamp_ms = item['date']
-    date = datetime.fromtimestamp(timestamp_ms / 1000).strftime('%Y/%m/%d')
+has_more = True
+items_limit = 10
+skip = 0
+while has_more:
+    issue_work_item = issue.get_work_items(limit=items_limit, skip=skip)
+    if not issue_work_item:
+        has_more = False
+    else:
+        for item in issue_work_item:
+            timestamp_ms = item['date']
+            date = datetime.fromtimestamp(timestamp_ms / 1000).strftime('%Y/%m/%d')
+            print(f"User {item['author']['name']} spent {item['duration']['minutes']} minutes {item['$type']} on {date} for {item['text']}")
+        skip += items_limit
 
-    print(f"User {item['author']['name']} spent {item['duration']['minutes']} minutes {item['$type']} on {date} for {item['text']}")
-#issue.add_spent_time(60)
+# Add Work Time
+#issue.add_work_item(60,date=None,description="Test REST Paolo")
+#issue.add_work_item(60,date='05/05/2025',description="Test REST Paolo")
