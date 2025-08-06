@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "youtrack-rest-client"
+name = "youtrack-lap"
 version = "0.1.0"
 description = "A very limited client library for accessing YouTrack REST API"
 authors = [
