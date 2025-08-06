@@ -17,8 +17,8 @@ class Connection:
             'Cache-Control': 'no-cache'
         }
     
-    #Implement GET /api/admin/projects?{fields}&{$top}&{$skip}
     def get_projects(self, limit=None, skip=None):
+        """Get projects from YouTrack."""
         url = f"{self.base_url}/api/admin/projects"
     
         params = {
@@ -28,6 +28,6 @@ class Connection:
         }
         
         response = requests.get(url, headers=self.headers, params=params)
-        response.raise_for_status()  # Raise exception for HTTP errors
+        response.raise_for_status()
         
         return response.json()

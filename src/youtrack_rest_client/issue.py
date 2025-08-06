@@ -13,8 +13,8 @@ class Issue:
         self.client = client
         self.id = issue_id
     
-    #Implement GET /api/issues/{issueID}/timeTracking/workItems?{fields}&{$top}&{$skip}
     def get_work_items(self, limit=None, skip=None):
+        """Get work items for the issue."""
         url = f"{self.client.base_url}/api/issues/{self.id}/timeTracking/workItems"
         params = {
             'fields': 'id,author(name),date,text,duration(minutes)',
@@ -27,17 +27,13 @@ class Issue:
 
         return response.json()
 
-    #Implement POST /api/issues/{issueID}/timeTracking/workItems?{fields}&{muteUpdateNotifications}
     def add_work_item(self, duration, date=None, description=None):
-        # Format date in epoch time if date is in YYYY/MM/DD string convert in epoch time X
-        
-        date
+        """Add work item to the issue."""
         if date is None:
             date = datetime.datetime.now().timestamp() * 1000 
         elif isinstance(date, str):
             date = datetime.datetime.strptime(date, "%d/%m/%Y").timestamp() * 1000            
             
-        # Prepare request data
         url = f"{self.client.base_url}/api/issues/{self.id}/timeTracking/workItems"
 
         data = {
@@ -45,11 +41,9 @@ class Issue:
                 "minutes": self._parse_duration(duration)
             },
             "date": date,
-            "text" : description
-
+            "text": description
         }
         
-        # Make the API request
         response = requests.post(url, headers=self.client.headers, json=data)
         response.raise_for_status()
         
@@ -60,7 +54,6 @@ class Issue:
         if isinstance(duration, int):
             return duration
             
-        # Simple parsing for formats like "1h 30m" or "90m"
         total_minutes = 0
         
         if "h" in duration:

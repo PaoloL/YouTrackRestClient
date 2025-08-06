@@ -12,9 +12,8 @@ class Project:
         self.client = client
         self.project_id = project_id
     
-    #implement GET /api/admin/projects/{projectID}?{fields}
     def get_details(self):
-
+        """Get project details."""
         url = f"{self.client.base_url}/api/admin/projects/{self.project_id}"
         params = {
             'fields': 'id,name,description,created',
@@ -26,9 +25,8 @@ class Project:
         
         return response.json()
     
-    #Implement GET /api/issues?{fields}&{$top}&{$skip}&{query}&{customFields}
     def get_issues(self, limit=None):
-        
+        """Get issues for the project."""
         url = f"{self.client.base_url}/api/issues"
         params = {
             'fields': 'id,summary,description',
