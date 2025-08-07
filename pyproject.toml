@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "youtrack-lap"
-version = "0.1.0"
+version = "0.1.1"
 description = "A very limited client library for accessing YouTrack REST API"
 authors = [
     { name = "Paolo Latella", email = "paolo.latella@recube.it" }
